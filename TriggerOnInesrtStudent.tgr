@@ -1,0 +1,14 @@
+trigger TriggerOnInesrtStudent on Student__c (before insert) {
+    
+    for(Student__c student: Trigger.New){
+        //System.debug(student.Class__c);
+        Class__c cls = [SELECT maxSize__c,NumberOfStudents__c from class__c where id = : student.class__c];
+        Double maxSize = cls.maxSize__c;
+        Double NumberOfStudent = cls.NumberOfStudents__c;
+        //System.debug(NumberOfStudent);
+        //System.debug(maxSize);
+        if(maxSize == NumberOfStudent){
+            student.addError('Class is already full!');
+       	}
+    }
+}

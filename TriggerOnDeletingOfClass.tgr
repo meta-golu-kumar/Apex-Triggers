@@ -1,0 +1,20 @@
+trigger TriggerOnDeletingOfClass on Class__c (before delete) {
+	
+    class__c[] classes = [select name,(Select sex__c from student_class__r)
+                          from class__c where Id IN : Trigger.old];
+    for(Class__c c: classes){
+        Integer femaleCount = 0;
+        
+        for(Student__c student : c.student_class__r){
+            System.debug(student.Sex__c);
+            if(student.sex__c.contains('Female')){
+                femaleCount++;
+            }
+        }
+        System.debug(femaleCount);
+        if(femaleCount > 1){
+            Trigger.oldMap.get(c.Id).
+                addError('This class can not be deleted because of more than 1 female student');
+        }
+    }
+}

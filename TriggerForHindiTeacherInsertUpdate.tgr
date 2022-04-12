@@ -1,0 +1,8 @@
+trigger TriggerForHindiTeacherInsertUpdate on Teach__c (before insert,before update) {
+	
+    for(Teach__c teach: Trigger.new){
+        if(teach.subject__c.contains('Hindi')){
+            teach.addError('Sorry, you can not in with Hindi subject.');
+        }
+    }
+}

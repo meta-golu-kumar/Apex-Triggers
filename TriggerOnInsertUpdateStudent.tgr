@@ -1,0 +1,29 @@
+trigger TriggerOnInsertUpdateStudent on Student__c (after insert,before update) {
+    
+    List<Class__c> classList = new List<Class__c>();
+    if(Trigger.isInsert){
+        for(Student__c std : Trigger.new){
+            //System.debug(std.Class__c);
+            Class__c cls = [SELECT MyCount__c from Class__c where ID = :std.Class__c];
+            //System.debug(cls);
+            cls.Mycount__c += 1;
+            System.debug(cls.Mycount__c);
+            classList.add(cls);
+    	}
+    }
+    if(Trigger.isUpdate){
+        for(Student__c std: Trigger.new){
+            if(std.class__c != Trigger.oldMap.get(std.Id).class__c){
+                Class__c newClass = [SELECT MyCount__c from Class__c where ID = :std.Class__c];
+                Class__c oldClass = [SELECT MyCount__c from Class__c where
+                                     ID =:Trigger.oldMap.get(std.Id).class__c ];
+                newClass.MyCount__c++;
+                oldClass.MyCount__c--;
+                classList.add(newClass);
+                classList.add(oldClass);
+            }
+        }
+    }
+    
+    update classList;
+}

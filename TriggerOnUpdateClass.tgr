@@ -1,0 +1,27 @@
+trigger TriggerOnUpdateClass on Class__c (before update,after update) {
+    
+    Set<Id> studentIdList = new Set<Id>();
+    if(Trigger.isBefore){
+        for(Class__c cls: Trigger.New){
+             if((cls.Custom_Status__c != Trigger.oldMap.get(cls.Id).Custom_status__c) && 
+           cls.Custom_Status__c == 'Reset'){
+               cls.Mycount__c = 0;
+           }
+        }
+    }
+    
+    if(Trigger.isAfter){
+        for(Class__c cls: Trigger.New){
+            if((cls.Custom_Status__c != Trigger.oldMap.get(cls.Id).Custom_status__c) && 
+               cls.Custom_Status__c == 'Reset'){
+                    System.debug(cls.Custom_Status__c);
+                    Student__c[] stdList= [SELECT ID FROM Student__c where class__c =: cls.Id];
+                   for(Student__c std: stdList){
+                       studentIdList.add(std.Id);
+                   }
+            }
+    	}
+        
+    	delete [SELECT ID FROM Student__c WHERE Id IN : studentIdList];
+    }
+}
