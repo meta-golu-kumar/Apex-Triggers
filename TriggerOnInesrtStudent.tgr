@@ -1,14 +1,30 @@
 trigger TriggerOnInesrtStudent on Student__c (before insert) {
+    class classWrapper{
+        Id classId;
+        Decimal numberOfStudent;
+        Decimal maxSize;
+        
+        classWrapper(Id classId,Decimal numberOfStudent, Decimal maxSize){
+            this.classId = classId;
+            this.numberOfStudent = numberOfStudent;
+            this.maxSize = maxSize;
+        }
+    }
     
+    Map<Id,ClassWrapper> mapClass = new Map<Id,ClassWrapper>();
     for(Student__c student: Trigger.New){
         //System.debug(student.Class__c);
-        Class__c cls = [SELECT maxSize__c,NumberOfStudents__c from class__c where id = : student.class__c];
-        Double maxSize = cls.maxSize__c;
-        Double NumberOfStudent = cls.NumberOfStudents__c;
-        //System.debug(NumberOfStudent);
-        //System.debug(maxSize);
-        if(maxSize == NumberOfStudent){
+        Class__c cls = [SELECT maxSize__c, NumberOfStudents__c from class__c where id = : student.class__c];
+        if(!mapClass.containsKey(cls.Id)){
+            mapClass.put(cls.Id, new ClassWrapper(cls.id,cls.MaxSize__c,cls.NumberOfStudents__c));
+        }
+        ClassWrapper cw = mapClass.get(cls.Id);
+        if(cw.maxSize > (cw.NumberOfStudent)){
+            cw.NumberOfStudent++;
+            mapClass.put(cls.Id, cw);
+        }else{
             student.addError('Class is already full!');
-       	}
+        }
+         
     }
 }
