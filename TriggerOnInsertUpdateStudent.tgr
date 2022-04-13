@@ -4,11 +4,14 @@ trigger TriggerOnInsertUpdateStudent on Student__c (after insert,before update) 
     if(Trigger.isInsert){
         for(Student__c std : Trigger.new){
             //System.debug(std.Class__c);
-            Class__c cls = [SELECT MyCount__c from Class__c where ID = :std.Class__c];
-            //System.debug(cls);
+            Class__c cls = [SELECT myCount__c from class__c where id = : std.class__c];
+            
             cls.Mycount__c += 1;
             System.debug(cls.Mycount__c);
-            classList.add(cls);
+            update cls;
+           
+            //System.debug(cls);
+            
     	}
     }
     if(Trigger.isUpdate){
@@ -19,8 +22,10 @@ trigger TriggerOnInsertUpdateStudent on Student__c (after insert,before update) 
                                      ID =:Trigger.oldMap.get(std.Id).class__c ];
                 newClass.MyCount__c++;
                 oldClass.MyCount__c--;
-                classList.add(newClass);
-                classList.add(oldClass);
+                if(!classList.contains(newClass))
+                	classList.add(newClass);
+                if(!classList.contains(oldClass))
+                	classList.add(oldClass);
             }
         }
     }
